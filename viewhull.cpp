@@ -658,59 +658,108 @@ void draw_hull(vector<point2d> hull){
 /* ****************************** */
 /* Handler for key presses. called whenever a key is spressed */
 void keypress(unsigned char key, int x, int y) {
+  bool i_count = false;
+  bool j_count = false;
+
   switch(key) {
-  case 'q':
-    exit(0);
-    break;
+    case 'q':
+      exit(0);
+      break;
 
-  case 'i':
-    //when the user presses 'i', we want to re-initialize the points and
-    //recompute the hull
-    POINT_INIT_MODE = (POINT_INIT_MODE+1) % NB_INIT_CHOICES; 
-    switch (POINT_INIT_MODE) {
-    case 0: 
-      initialize_points_circle(points, NPOINTS); 
+    case 'i':
+      // When the user presses 'i', we want to re-initialize the points
+      POINT_INIT_MODE = (POINT_INIT_MODE + 1) % NB_INIT_CHOICES; 
+      switch (POINT_INIT_MODE) {
+      case 0: 
+        initialize_points_circle(points, NPOINTS); 
+        break; 
+      case 1: 
+        initialize_points_cross(points, NPOINTS); 
+        break; 
+      case 2: 
+        initialize_points_horizontal_line(points, NPOINTS); 
+        break; 
+      case 3:
+        initialize_points_1(points, NPOINTS);
+        break;
+      case 4: 
+        initialize_points_random(points, NPOINTS); 
+        break; 
+      case 5:
+        initialize_points_2(points, NPOINTS);
+        break;
+      case 6:
+        initialize_points_diamond(points, NPOINTS);
+        break;
+      case 7:
+        initialize_points_square(points, NPOINTS);
+        break;
+      case 8: 
+        initialize_points_heart(points, NPOINTS); 
+        break;
+      case 9:
+        initialize_points_wave(points, NPOINTS);
+        break;
+      case 10: 
+        initialize_points_spiral(points, NPOINTS);
+        break;
+      case 11:
+        initialize_points_two_horizontal_lines(points, NPOINTS);
+        break;
+      } // switch 
+      i_count = true; // Mark that 'i' was pressed
       break; 
-    case 1: 
-      initialize_points_cross(points, NPOINTS); 
-      break; 
-    case 2: 
-      initialize_points_horizontal_line(points, NPOINTS); 
-      break; 
-    case 3:
-      initialize_points_1(points, NPOINTS);
-      break;
-    case 4: 
-      initialize_points_random(points, NPOINTS); 
-      break; 
-    case 5:
-      initialize_points_2(points, NPOINTS);
-      break;
-    case 6:
-      initialize_points_diamond(points, NPOINTS);
-      break;
-    case 7:
-      initialize_points_square(points, NPOINTS);
-      break;
-    case 8: 
-      initialize_points_heart(points, NPOINTS);
-      break;
-    case 9:
-      initialize_points_wave(points, NPOINTS);
-      break;
-    case 10: 
-      initialize_points_spiral(points, NPOINTS);
-      break;
-    case 11:
-      initialize_points_two_horizontal_lines(points, NPOINTS);
-      break;
-    } //switch 
-    //we changed the points, so we need to recompute the hull
-    graham_scan(points, hull); 
 
-    //we changed stuff, so we need to tell GL to redraw
-    glutPostRedisplay();
+    case 'j':
+      // When the user presses 'j', we want to go back to the previous mode
+      POINT_INIT_MODE = (POINT_INIT_MODE - 1 + NB_INIT_CHOICES) % NB_INIT_CHOICES; 
+      switch (POINT_INIT_MODE) {
+      case 0: 
+        initialize_points_circle(points, NPOINTS); 
+        break; 
+      case 1: 
+        initialize_points_cross(points, NPOINTS); 
+        break; 
+      case 2: 
+        initialize_points_horizontal_line(points, NPOINTS); 
+        break; 
+      case 3:
+        initialize_points_1(points, NPOINTS);
+        break;
+      case 4: 
+        initialize_points_random(points, NPOINTS); 
+        break; 
+      case 5:
+        initialize_points_2(points, NPOINTS);
+        break;
+      case 6:
+        initialize_points_diamond(points, NPOINTS);
+        break;
+      case 7:
+        initialize_points_square(points, NPOINTS);
+        break;
+      case 8: 
+        initialize_points_heart(points, NPOINTS); 
+        break;
+      case 9:
+        initialize_points_wave(points, NPOINTS);
+        break;
+      case 10: 
+        initialize_points_spiral(points, NPOINTS);
+        break;
+      case 11:
+        initialize_points_two_horizontal_lines(points, NPOINTS);
+        break;
+      } // switch 
+      j_count = true; // Mark that 'j' was pressed
+      break; 
+  } // switch (key)
 
-  } //switch (key)
+  if (i_count || j_count) {
+      // Recompute the hull if either key was pressed
+      graham_scan(points, hull); 
+      // Tell GL to redraw
+      glutPostRedisplay();
+  }
 
-}//keypress
+} // keypress

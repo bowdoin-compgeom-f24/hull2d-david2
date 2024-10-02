@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <cmath>
+#include <stack>
 #include <vector>
 
 using namespace std; 
@@ -12,64 +14,121 @@ using namespace std;
    is to the left of ab, and negative if c is to the right of ab
  */
 int signed_area2D(point2d a, point2d b, point2d c) {
-
-  return 1; 
+  int a_x = b.x - a.x;
+  int a_y = b.y - a.y;
+  int b_x = c.x - a.x;
+  int b_y = c.y - a.y;
+  int area = ((a_x * b_y) - (b_x * a_y));
+  return area; 
 }
-
 
 
 /* **************************************** */
 /* return 1 if p,q,r collinear, and 0 otherwise */
 int collinear(point2d p, point2d q, point2d r) {
-  
-  return 1; 
+  return ~signed_area2D(p, q, r); 
 }
-
 
 
 /* **************************************** */
 /* return 1 if c is  strictly left of ab; 0 otherwise */
 int left_strictly(point2d a, point2d b, point2d c) {
-  
-  return 1; 
+  return (signed_area2D(a, b, c) > 0); 
 }
 
 
 /* return 1 if c is left of ab or on ab; 0 otherwise */
 int left_on(point2d a, point2d b, point2d c) {
-
-  return 1; 
+  return (left_strictly(a, b, c) | collinear(a, b, c)); 
 }
 
+point2d p0;
+bool angle_comparator(point2d p1, point2d p2) {
+  // printf("DOUBLE CHECK (%d, %d) \n", p0.x, p0.y);
+  float angle1 = atan2((p1.y - p0.y), (p1.x - p0.x));
+  float angle2 = atan2((p2.y - p0.y), (p2.x - p0.x));
 
+  if (angle1 == angle2) {
+    float distance1 = (float)((p1.x - p0.x) + (p1.y - p0.y));
+    float distance2 = (float)((p2.x - p0.x) + (p2.y - p0.y));
+    return distance1 < distance2;
+  }
+
+  if (angle1 < 0) {
+    angle1 += (float) M_PI; // add twice the range of arctan, which is π/2, to offset negative angles such that they are greater than the positive values
+  }
+  if (angle2 < 0) {
+    angle2 += (float) M_PI;
+  }
+
+  return angle1 < angle2;
+}
 
 // compute the convex hull of pts, and store the points on the hull in hull
-void graham_scan(vector<point2d>& pts, vector<point2d>& hull ) {
+void graham_scan(vector<point2d>& pts, vector<point2d>& hull) {
 
+  if (pts.size() < 2) {
+    printf("ERROR: There must be at least two points\n");
+    exit(1);
+  }
   printf("hull2d (graham scan): start\n"); 
   hull.clear(); //should be empty, but clear it to be safe
 
-  //just for fun: at the moment we set the hull as the bounding box of
-  //pts.  erase this and insert your code instead
-  int x1, x2, y1, y2;
-  if (pts.size() > 0) {
-    x1 = x2 = pts[0].x;
-    y1 = y2 = pts[0].y;
-    
-    for (int i=1; i< pts.size(); i++) {
-      if (pts[i].x < x1) x1 = pts[i].x;
-      if (pts[i].x > x2) x2 = pts[i].x;
-      if (pts[i].y < y1) y1 = pts[i].y;
-      if (pts[i].y > y2) y2 = pts[i].y;
+  //find point with lowest y value in pts to start graham scan.
+  int smallest = std::numeric_limits<int>::max();
+  point2d smallest_y;
+  for (int i = 0; i < pts.size(); i++) {
+    if (pts[i].y < smallest) {
+      smallest = pts[i].y;
+      smallest_y = pts[i];
     }
-    point2d p1 = {x1,y1}, p2 = {x2, y1}, p3 = {x2, y2}, p4 = {x1, y2}; 
-    hull.push_back(p1);
-    hull.push_back(p2);
-    hull.push_back(p3);
-    hull.push_back(p4);
+    else if (pts[i].y == smallest) { // if there are multiple points with least y-coord, choose point with largest x-coord
+      if (pts[i].x > smallest_y.x) {
+        smallest_y = pts[i];
+      }
+    }
   }
+  p0 = smallest_y;
+  sort(pts.begin(), pts.end(), angle_comparator);
+
+  stack<point2d> s;
+  s.push(pts[0]);
+  s.push(pts[1]);
+  point2d pt_a, pt_b;
+  for (int i = 2; i < pts.size(); i++) { // starting from element 3 (e.g. 2 if points are labeled p0, 1, 2, etc.)
+    if (!(s.top().x == pts[i].x && s.top().y == pts[i].y)) {
+      while (!left_strictly(pt_a, pt_b, pts[i]) && s.size() > 2) {
+        s.pop();
+        pt_b = s.top();
+        s.pop();
+        pt_a = s.top();
+        s.push(pt_b);
+      }
+      pt_a = s.top();
+      s.push(pts[i]); 
+      pt_b = s.top();
+    }
+  }
+
+  while (!s.empty()) {
+    hull.push_back(s.top());
+    s.pop();
+  }
+
+  /* Prints the list of points from p0. */
+  // printf("Here is the list of pts\n");
+  // for (int i = 0; i < pts.size(); i++) {
+  //   printf("(%d, %d), ", pts[i].x, pts[i].y);
+  // }
+  // printf("\n");
+  
+  /* Prints convex hull points. */
+  // printf("convex hull points are: \n");
+  // for (int i = 0; i < hull.size(); i++) {
+  //   printf("(%d, %d), ", hull[i].x, hull[i].y);
+  // }
+  // printf("\n");
   
   printf("hull2d (graham scan): end\n"); 
   return; 
 }
-

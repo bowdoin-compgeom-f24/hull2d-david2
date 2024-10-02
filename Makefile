@@ -49,5 +49,3 @@ rtimer.o: rtimer.h rtimer.c
 clean:
 	rm *.o
 	rm viewPoints
-
-

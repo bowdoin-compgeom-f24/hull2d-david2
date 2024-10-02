@@ -30,7 +30,7 @@ int left_strictly (point2d a, point2d b, point2d c);
 /* return 1 if c is left of ab or on ab; 0 otherwise */
 int left_on(point2d a, point2d b, point2d c); 
 
-
+bool angle_comparator(point2d p1, point2d p2);
 
 // compute the convex hull 
 void graham_scan(vector<point2d>& pts, vector<point2d>& hull);

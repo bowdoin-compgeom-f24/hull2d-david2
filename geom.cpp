@@ -42,6 +42,7 @@ int left_on(point2d a, point2d b, point2d c) {
   return (left_strictly(a, b, c) | collinear(a, b, c)); 
 }
 
+
 point2d p0;
 bool angle_comparator(point2d p1, point2d p2) {
   // printf("DOUBLE CHECK (%d, %d) \n", p0.x, p0.y);
@@ -64,13 +65,14 @@ bool angle_comparator(point2d p1, point2d p2) {
   return angle1 < angle2;
 }
 
+
 // compute the convex hull of pts, and store the points on the hull in hull
 void graham_scan(vector<point2d>& pts, vector<point2d>& hull) {
-
   if (pts.size() < 2) {
     printf("ERROR: There must be at least two points\n");
     exit(1);
   }
+
   printf("hull2d (graham scan): start\n"); 
   hull.clear(); //should be empty, but clear it to be safe
 
@@ -89,7 +91,14 @@ void graham_scan(vector<point2d>& pts, vector<point2d>& hull) {
     }
   }
   p0 = smallest_y;
+
   sort(pts.begin(), pts.end(), angle_comparator);
+
+  //removes duplicates of p0 so as not to consider them in the hull
+  int i = 1;
+  while (pts[i].x == p0.x && pts[i].y == p0.y) { // while there are duplicates (so we don't have to iterate through the whole vector)
+    pts.erase(pts.begin() + i);
+  }
 
   stack<point2d> s;
   s.push(pts[0]);
@@ -110,6 +119,7 @@ void graham_scan(vector<point2d>& pts, vector<point2d>& hull) {
     }
   }
 
+  // populate the hull with the points from the stack
   while (!s.empty()) {
     hull.push_back(s.top());
     s.pop();
@@ -122,7 +132,7 @@ void graham_scan(vector<point2d>& pts, vector<point2d>& hull) {
   // }
   // printf("\n");
   
-  /* Prints convex hull points. */
+  /* Prints convex hull points (backwards). */
   // printf("convex hull points are: \n");
   // for (int i = 0; i < hull.size(); i++) {
   //   printf("(%d, %d), ", hull[i].x, hull[i].y);

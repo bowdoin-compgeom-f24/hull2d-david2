@@ -452,6 +452,7 @@ printf("\ninitialize points wave\n");
 void initialize_points_spiral(vector<point2d>& pts, int n) {
     printf("\ninitialize points spiral\n");
     pts.clear(); 
+    pts.reserve(n);
 
     double centerX = WINDOWSIZE / 2; // center of circle
     double centerY = WINDOWSIZE / 2; // center of circle
